@@ -107,10 +107,12 @@ export default class SequelizeMigration {
 		];
 
 		try {
-			await queryInterface.bulkDelete('SequelizeMetaMigrations', {
-				revision: currentState.revision
-			});
-			await queryInterface.bulkInsert('SequelizeMetaMigrations', rows);
+			if(!options.preview) {
+				await queryInterface.bulkDelete('SequelizeMetaMigrations', {
+					revision: currentState.revision
+				});
+				await queryInterface.bulkInsert('SequelizeMetaMigrations', rows);
+			}
 
 			console.log(`Use sequelize CLI: npx sequelize db:migrate --to ${
 				info.revisionNumber

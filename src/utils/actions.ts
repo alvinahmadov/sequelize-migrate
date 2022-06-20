@@ -1,19 +1,29 @@
-import * as df                         from 'deep-diff';
-import { ModelAttributeColumnOptions } from 'sequelize';
-import { IAction, refactorColumnName } from '../common';
+import * as df from 'deep-diff';
+import {
+	IAction,
+	ITable,
+	ITableRecord,
+	TTableRecordDiff
+}              from '../common';
+import {
+	ModelAttributeColumnOptions
+}              from 'sequelize';
+import {
+	ModelAttributeColumnReferencesOptions
+}              from 'sequelize/types/model';
 
-function addNew(df: df.DiffNew<any>, actions: IAction[], currentStateTables: any): void {
+function addNew(df: df.DiffNew<ITable>, actions: IAction[], currentStateTables: ITableRecord): void {
 	// new table created
 	if(df.path.length === 1) {
-		const depends: any[] = [];
+		const depends: string[] = [];
 
 		const tableName = df.rhs.tableName;
 		Object.values(df.rhs.schema)
-		      .forEach((v: ModelAttributeColumnOptions) =>
+		      .forEach((v) =>
 		               {
 			               if(v.references) {
 				               if(typeof v.references !== 'string')
-					               depends.push(v.references.model);
+					               depends.push(v.references.model as string);
 				               else
 					               depends.push(v.references);
 			               }
@@ -21,10 +31,10 @@ function addNew(df: df.DiffNew<any>, actions: IAction[], currentStateTables: any
 
 		actions.push({
 			             actionType: 'createTable',
-			             tableName,
 			             attributes: df.rhs.schema,
 			             options:    {},
-			             depends:    depends
+			             tableName,
+			             depends
 		             });
 
 		// create indexes
@@ -46,15 +56,15 @@ function addNew(df: df.DiffNew<any>, actions: IAction[], currentStateTables: any
 		return;
 	}
 
-	const tableName = df.path[0];
-	const depends = [tableName];
+	const tableName: string = df.path[0];
+	const depends: string[] = [tableName];
 
 	if(df.path[1] === 'schema') {
 		// if (df.path.length === 3) - new field
 		if(df.path.length === 3) {
 			// new field
 			if(df.rhs && df.rhs.references) {
-				depends.push(df.rhs.references.model);
+				depends.push(df.rhs.references.model as string);
 			}
 			actions.push({
 				             actionType:    'addColumn',
@@ -73,15 +83,18 @@ function addNew(df: df.DiffNew<any>, actions: IAction[], currentStateTables: any
 				const options =
 					currentStateTables[tableName].schema[df.path[2]];
 				if(options.references) {
-					depends.push(options.references.nodel);
+					if(typeof options.references === 'string')
+						depends.push(options.references);
+					else
+						depends.push(options.references.model as string);
 				}
 
 				actions.push({
 					             actionType:    'changeColumn',
-					             tableName:     tableName,
 					             attributeName: df.path[2],
-					             options:       options,
-					             depends:       depends
+					             tableName,
+					             options,
+					             depends
 				             });
 				return;
 			}
@@ -103,7 +116,7 @@ function addNew(df: df.DiffNew<any>, actions: IAction[], currentStateTables: any
 	}
 }
 
-function drop(df: df.DiffDeleted<any>, actions: IAction[], currentStateTables: any): void {
+function drop(df: df.DiffDeleted<ITable>, actions: IAction[], currentStateTables: any): void {
 	const tableName = df.path[0];
 
 	if(df.path.length === 1) {
@@ -131,7 +144,7 @@ function drop(df: df.DiffDeleted<any>, actions: IAction[], currentStateTables: a
 			actions.push({
 				             actionType: 'removeColumn',
 				             tableName,
-				             columnName: refactorColumnName(df.path[2]),
+				             columnName: df.path[2],
 				             depends:    [tableName]
 			             });
 			return;
@@ -169,21 +182,22 @@ function drop(df: df.DiffDeleted<any>, actions: IAction[], currentStateTables: a
 	}
 }
 
-function edit(df: df.DiffEdit<any, any>, actions: IAction[], currentStateTables: any): void {
-	const tableName = df.path[0];
+function edit(df: df.DiffEdit<ITable>, actions: IAction[], currentStateTables: any): void {
+	const tableName: string = df.path[0];
 	const depends = [tableName];
 
 	if(df.path[1] === 'schema') {
 		// new field attributes
-		const options = currentStateTables[tableName].schema[df.path[2]];
+		const options: ModelAttributeColumnOptions = currentStateTables[tableName].schema[df.path[2]];
 		if(options.references) {
-			depends.push(options.references.nodel);
+			const { model } = options.references as ModelAttributeColumnReferencesOptions;
+			depends.push(model as string);
 		}
 
 		actions.push({
-			             actionType:    'changeColumn',
+			             actionType: 'changeColumn',
 			             tableName,
-			             attributeName: refactorColumnName(df.path[2]),
+			             attributeName: df.path[2],
 			             options,
 			             depends
 		             });
@@ -271,11 +285,11 @@ export function sortActions(actions: IAction[]) {
 }
 
 export function getDiffActionsFromTables(
-	previousStateTables: any,
-	currentStateTables: any
+	previousStateTables: ITableRecord,
+	currentStateTables: ITableRecord
 ) {
 	const actions: IAction[] = [];
-	let difference: Array<df.Diff<any, any>> = df.diff(
+	let difference: Array<TTableRecordDiff> = df.diff(
 		previousStateTables,
 		currentStateTables
 	);

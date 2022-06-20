@@ -10,11 +10,10 @@ import {
 	IAction,
 	IDefaultReverseResult,
 	IMigrationOptions,
-	IRecord,
-	refactorColumnName
+	IRecord
 }                         from '../common';
 
-const propertyToStr = (obj: IRecord<IDefaultReverseResult>) =>
+const propertyToStr = (obj: IRecord<IDefaultReverseResult> | any) =>
 {
 	const vals: string[] = [];
 	for(const k in obj) {
@@ -53,8 +52,7 @@ const getAttributes = (attrs: any) =>
 {
 	const ret = [];
 	for(const attrName in attrs) {
-		console.debug({ attrName, attr: attrs[attrName] });
-		ret.push(`      "${refactorColumnName(attrName)}": ${propertyToStr(attrs[attrName])}`);
+		ret.push(`      "${attrName}": ${propertyToStr(attrs[attrName])}`);
 	}
 	return ` { \n${ret.join(', \n')}\n     }`;
 };
@@ -93,8 +91,6 @@ export function removeCurrentRevisionMigrations(
 					              }
 				              });
 			} catch(err) {
-				// if (options.debug) console.error(`Can't read dir: ${err}`);
-				// console.log(`Failed to delete mig file: ${error}`);
 				if(options.debug) console.error(`Error: ${err}`);
 				resolve(false);
 			}
@@ -109,7 +105,6 @@ export function getMigrationCommands(actions: IAction[]) {
 
 	for(const _i in actions) {
 		const action = actions[_i];
-
 		switch(action.actionType) {
 			case 'createTable':
 
@@ -306,7 +301,7 @@ module.exports = {
 			function next() {
 				if (index < migrationCommands.length) {
 					let command = migrationCommands[index];
-					console.log("[#"+index+"] execute: " + command.fn + " for " + command.params[0]);
+					console.log("[#"+index+"] execute: " + command.fn + " for table '" + command.params[0] + "'");
 					index++;
 					queryInterface[command.fn].apply(queryInterface, command.params).then(next, reject);
 				} else
@@ -324,7 +319,7 @@ module.exports = {
 			function next() {
 				if (index < rollbackCommands.length) {
 					let command = rollbackCommands[index];
-					console.log("[#"+index+"] execute: " + command.fn);
+					console.log("[#"+index+"] execute: " + command.fn + " for table '" + command.params[0] + "'");
 					index++;
 					queryInterface[command.fn].apply(queryInterface, command.params).then(next, reject);
 				} else

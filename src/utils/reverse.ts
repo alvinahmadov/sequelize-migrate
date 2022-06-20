@@ -177,7 +177,7 @@ export function reverseDefaultValueType(
 		if(retValue && retValue.val) {
 			return {
 				internal: true,
-				value: `${prefix}literal(\'${retValue.val}\')`
+				value:    `${prefix}literal(\'${retValue.val}\')`
 			};
 		}
 		return { notSupported: true, value: '' };
@@ -193,10 +193,11 @@ export function reverseModels(
 	const tables: ITableRecord = {};
 	for(let [, model] of Object.entries(models)) {
 		const resultAttributes: IRecord = {};
+		const { sequelize: _, ...initOptions } = model.options;
 
 		for(let [column, attribute] of Object.entries(model.getAttributes())) {
 			let rowAttribute: IRecord<string | IDefaultReverseResult> = {};
-			column = refactorColumnName(column);
+			column = refactorColumnName(column, initOptions.underscored);
 
 			if(attribute.defaultValue) {
 				const _val = reverseDefaultValueType(attribute.defaultValue);
@@ -254,7 +255,8 @@ export function reverseModels(
 
 		tables[model.tableName] = {
 			tableName: model.tableName,
-			schema:    resultAttributes
+			schema:    resultAttributes,
+			options:   initOptions
 		};
 
 		let idx_out: IPropertyRecord = {};

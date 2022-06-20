@@ -11,7 +11,7 @@
 		"diagnostics": false,
 		"traceResolution": false,
 		"listEmittedFiles": false,
-		"locale": "ko",
+		"locale": "ru",
 		"pretty": true,
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
@@ -36,11 +36,11 @@
 		"emitDecoratorMetadata": true,
 		"stripInternal": false,
 		"sourceMap": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": false
 	},
 	"exclude": [
 		"node_modules",
 		"dist",
 		"example"
-	]
+	],
 }

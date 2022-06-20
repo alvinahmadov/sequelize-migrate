@@ -1,10 +1,12 @@
 import {
 	AbstractDataType,
-	DataType
+	DataType,
+	ModelAttributeColumnOptions,
+	ModelAttributeColumnReferencesOptions,
+	ModelOptions
 }                     from 'sequelize';
 import { decamelize } from 'humps';
-
-const DECAMELIZE = true;
+import { Diff }       from 'deep-diff';
 
 export interface IAction {
 	actionType:
@@ -16,9 +18,9 @@ export interface IAction {
 		| 'removeIndex'
 		| 'changeColumn';
 	tableName: string;
-	attributes?: any;
-	attributeName?: any;
-	options?: any;
+	attributes?: IRecord;
+	attributeName?: string;
+	options?: Partial<ModelAttributeColumnOptions & { indexName?: string }>;
 	columnName?: any;
 	fields?: any[];
 	depends: string[];
@@ -53,7 +55,7 @@ export interface IMigrationOptions {
 export interface IMigrationState {
 	revision?: number;
 	version?: number;
-	tables: {};
+	tables: ITableRecord;
 }
 
 export interface IRecord<T = any> {
@@ -66,13 +68,18 @@ export interface IPropertyRecord<T = any> {
 
 export interface ITable {
 	tableName?: string;
-	schema?: any;
+	schema?: IRecord<ModelAttributeColumnOptions>;
+	references?: ModelAttributeColumnReferencesOptions;
 	indexes?: { [k: string]: IRecord };
+	fields?: any[];
+	options?: ModelOptions;
 }
 
 export interface ITableRecord {
 	[k: string]: ITable;
 }
+
+export type TTableRecordDiff = Diff<ITableRecord>
 
 export interface IDataType
 	extends AbstractDataType {
@@ -80,7 +87,7 @@ export interface IDataType
 	type?: DataType;
 }
 
-export function refactorColumnName(columnName: string) {
-	if(DECAMELIZE) return decamelize(columnName);
+export function refactorColumnName(columnName: string, underscored: boolean) {
+	if(underscored) return decamelize(columnName);
 	return columnName;
 }
