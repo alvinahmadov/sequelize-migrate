@@ -1,0 +1,46 @@
+{
+	"compilerOptions": {
+		"target": "es2017",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"baseUrl": "./",
+		"outDir": "./dist",
+		"declaration": true,
+		"diagnostics": false,
+		"traceResolution": false,
+		"listEmittedFiles": false,
+		"locale": "ru",
+		"pretty": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"suppressExcessPropertyErrors": false,
+		"suppressImplicitAnyIndexErrors": false,
+		"noStrictGenericChecks": true,
+		"charset": "utf8",
+		"emitBOM": false,
+		"removeComments": true,
+		"disableSizeLimit": false,
+		"noEmit": false,
+		"noEmitOnError": false,
+		"preserveConstEnums": false,
+		"lib": [
+			"esnext",
+			"dom"
+		],
+		"downlevelIteration": false,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"stripInternal": false,
+		"sourceMap": true,
+		"forceConsistentCasingInFileNames": false
+	},
+	"exclude": [
+		"node_modules",
+		"dist",
+		"example"
+	],
+}

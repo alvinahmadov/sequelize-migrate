@@ -1,0 +1,45 @@
+{
+	"name": "sequelize-migration",
+	"version": "1.0.0",
+	"description": "Migration tool for sequelize-typescript",
+	"keywords": [
+		"sequelize",
+		"typescript",
+		"migrate",
+		"migration",
+		"makemigration"
+	],
+	"homepage": "https://github.com/kimjbstar/sequelize-typescript-migration",
+	"bugs": {
+		"url": "https://github.com/kimjbstar/sequelize-typescript-migration/issues",
+		"email": "kimjbstar@gmail.com"
+	},
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc -p tsconfig.json"
+	},
+	"bin": "./dist/index.js",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/kimjbstar/sequelize-typescript-migration.git"
+	},
+	"author": {
+		"name": "kimjbstar",
+		"email": "kimjbstar@gmail.com"
+	},
+	"contributors": [
+		"Alvin Ahmadov <alvin.dev.ahmadov@gmail.com>"
+	],
+	"license": "MIT",
+	"dependencies": {
+		"deep-diff": "^1.0.2",
+		"inflection": "^1.12.0",
+		"js-beautify": "^1.10.3"
+	},
+	"devDependencies": {
+		"@types/bluebird": "^3.5.30",
+		"@types/deep-diff": "^1.0.1",
+		"@types/inflection": "^1.13.0",
+		"@types/js-beautify": "^1.13.3"
+	}
+}
